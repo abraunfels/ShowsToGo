@@ -1,0 +1,50 @@
+{% extends 'basealls.html' %}
+
+{% block title %} {{ typename }} Москвы {% endblock %}
+
+{% block search %}
+<div class="container mt-4">
+        <div class="row">
+            <div class="col-sm-3">
+                  <div class="dropdown">
+                    <a class="btn btn-info dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-offset="10,20">
+                    Жанры
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        {% for subgenre in subgenres %}
+                        <a class="dropdown-item" href="/perfomances?subgenre={{ subgenre.subgenreid }}">{{ subgenre['name'] }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block cards %}
+<div class="card-columns mt-4 mr-4 ml-4">
+    {% for perfomance, theatre, closestshow in dict.values() %}
+        <div class="card">
+            {% if perfomance.img%}
+                <img class="card-img-top" src={{ url_for('static', filename= perfomance['img']) }}>
+            {% endif %}
+            <div class="card-body">
+                <a href="{{ url_for('perfomance', perfomanceid=perfomance.perfomanceid) }}" class="stretched-link">
+                    <h4 class="card-title"> {{ perfomance['name'] }}</h4></a>
+                {% if perfomance.synopsis %}
+                    <p class="card-text"> {{ perfomance['synopsis'] }}</p>
+                {% endif %}
+
+            <footer class="footer">
+                <small class="text-muted">
+                    {% if closestshow %}{{ closestshow['datetime'] | datetime('short') }} &bull; {{ theatre['name'] }} {% endif %}
+                    {% if not closestshow %} Событие прошло &bull; {{ theatre['name'] }} {% endif %}
+                </small>
+            </footer>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock %}

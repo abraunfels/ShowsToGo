@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<p>Hello world!</p>
+
+{% endblock %}
+
+
+
+<p class="card=text" ><small class="bold">{{ perfomance['genre'] }}</small></p>
+    <h5 class="card-title">{{ perfomance['name'] }}</h5>
+    <p class="card-text lead">{{ perfomance['synopsis'] }}</p>
+    <p class="card-text">
+        {% for subgenre in subgenres %}
+        <span class="badge badge-info">{{ subgenre.name }}</span>
+        {% endfor %}
+    </p>
+
+
+    <p class="card-text" ><small class="bold">{{ perfomance['genre'] }}</small></p>
+    <h5 class="card-title">{{ perfomance['name'] }}</h5>
+    <p class="card-text lead">{{ perfomance['synopsis'] }}</p>
+    <p class="card-text">
+        {% for subgenre in subgenres %}
+        <span class="badge badge-info">{{ subgenre.name }}</span>
+        {% endfor %}
+    </p>

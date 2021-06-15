@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container text-center mt-4">
+        <h1 class="display-4"> Билет </h1>
+        <table class="table table-borderless">
+        <tbody>
+        <tr>
+          <td>Имя: </td>
+          <td>{{ name }}</td>
+        </tr>
+        <tr>
+          <td>Спектакль:</td>
+          <td>{{ perfomance.name }}</td>
+        </tr>
+        <tr>
+          <td>Время:</td>
+          <td> {{ show.datetime| datetime('full')}}"</td>
+        </tr>
+        <tr>
+          <td>Место:</td>
+          <td> {{ area.name }} ряд {{ row }}, место {{ place }}</td>
+        </tr>
+        <tr>
+          <td>Театр:</td>
+          <td>{{theatre.name}}, {{ theatre.address }}</td>
+        </tr>
+        </tbody>
+        </table>
+    </div>
+
+{% endblock %}

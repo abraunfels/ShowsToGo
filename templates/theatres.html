@@ -1,0 +1,61 @@
+{% extends 'basealls.html' %}
+
+{% block title %}Театры Москвы{% endblock %}
+
+{% block search %}
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-sm-6">
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text" id="basic-addon1">
+                        <img src="static/sitepics/search.svg" height="15rem" class="d-inline-block align-top" alt=""> </span>
+                    </div>
+                    <input type="text" class="form-control" placeholder="Поиск по названию, адресу театра"  aria-describedby="basic-addon1">
+                </div>
+            </div>
+            <div class="col-sm">
+                  <div class="dropdown">
+                    <a class="btn btn-info dropdown-toggle" href="#" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" data-offset="0,10">
+                    Все театры
+                    </a>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuLink">
+                        <a class="dropdown-item" href="#">Все театры</a>
+                        {% for type in types %}
+                        <a class="dropdown-item" href="/theatres?type={{ type.typeid }}">{{ type['name'] }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+    </script>
+
+{% endblock %}
+
+{% block cards %}
+    {% for theatre, types in theatres.values() %}
+        <div class="card">
+            <div class="card-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-10">
+                           <p style="font-size: 75%" class="card-text theatrecard">
+                               {% for type in types %} {{ type['name'] }}{% if not loop.last %} &bull; {% endif %}
+                               {% endfor %}
+                           </p>
+                            <a href="{{ url_for('theatre', theatreid=theatre['theatreid']) }}" class="stretched-link"><h5 class="card-title">{{ theatre['name'] }}</h5></a>
+                            <p class="card-text">{{ theatre['address'] }}</p>
+                        </div>
+                        <div class="col-sm-2">
+                            <img class="mx-auto d-block rounded-circle align-middle" width="100%" src={{ url_for('static', filename=theatre['img']) }} >
+                        </div>
+                    </div>
+                </div>
+        </div>
+        </div>
+    {% endfor %}
+{% endblock %}

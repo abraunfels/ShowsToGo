@@ -1,0 +1,308 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="card border-0" style="margin-top: -1rem; margin-left: -2rem; margin-right: -2rem; padding: 0;" >
+        <div class="card-header">
+            <img class="card-img" src="{{ url_for('static', filename = perfomance['img']) }}" width="110"
+                 alt="Card image cap">
+            <div class="card-img-overlay d-flex align-items-end justify-content-start">
+                <div class="conainer border-info" style="margin-bottom: 25%; margin-left: 20%; padding: 0">
+                    <p class="font-weight-bold" style="color: white"><small>{{ genre.name }}</small></p>
+                    <h4 class="display-4 font-weight-bold" style="color: white">{{ perfomance['name'] }}</h4>
+                    <p class="lead" style="color: white">{{ perfomance['synopsis'] }}</p>
+                    <p class="">
+                    {% for subgenre in subgenres %}
+                        <span class="badge badge-info">{{ subgenre.name }}</span>
+                    {% endfor %}
+                    </p>
+		</div>
+   </div>
+</div>
+
+<div class="container border-0">
+    <table class="table table-borderless">
+        <tbody>
+        <tr>
+          <td>Режиссёр: </td>
+          <td>{{ director.name}} {{director.surname }}</td>
+        </tr>
+        <tr>
+          <td>Актеры:</td>
+          <td>{% for actor in actors %}{{ actor.name}} {{actor.surname }}{% if not loop.last %}, {% endif %}{% endfor %}</td>
+        </tr>
+        <tr>
+            <td>Длительность:</td>
+            <td>{{ perfomance.duration_min }} мин.</td>
+        </tr>
+        </tbody>
+    </table>
+    </div>
+</div>
+
+<div class="container" id="affishe">
+<ul class="nav nav-pills mb-3 d-flex justify-content-center " id="pills-tab" role="tablist">
+    {% for show in shows %}
+        {% if  loop.first %}
+            <li class="nav-item">
+            <a class="nav-link active" id="pills-{{show.showid}}-tab" data-toggle="pill" href="#pills-{{ show.showid }}" role="tab" aria-controls="pills-home" aria-selected="true">{{show.datetime|datetime('full')}}</a>
+            </li>
+        {% endif %}
+        {% if not loop.first %}
+            <li class="nav-item">
+            <a class="nav-link" id="pills-{{show.showid}}-tab" data-toggle="pill" href="#pills-{{ show.showid }}" role="tab" aria-controls="pills-home" aria-selected="true">{{show.datetime|datetime('full')}}</a>
+            </li>
+        {% endif %}
+    {% endfor %}
+</ul>
+<div class="tab-content" id="pills-tabContent">
+    {% for show in shows %}
+        {% if  loop.first %}
+            <div class="tab-pane fade show active" id="pills-{{show.showid}}" role="tabpanel" aria-labelledby="pills-{{ show.showid }}-tab">
+            <div class="row">
+                <div class="col-sm-6 align-items-center">
+                    <div class="coteiner text-center">
+                    {% for areacost in showareacost[show.showid] %}
+                        <h6 class="text=center">{{ areacost.area.name }}</h6>
+                            {% for x in range(areacost.area.rows) %}
+                                <p> Ряд {{ x + 1}}
+                                    {% for y in range(areacost.area.seats) %}
+                                        {% if areacost.seats[x * areacost.area.seats + y] == True %}
+                                            <button type="button" class="btn btn-secondary" disabled>{{ y + 1 }}</button>
+                                        {% endif %}
+                                        {% if areacost.seats[x * areacost.area.seats + y] == False %}
+                                            <button type="button" class="btn btn-light" onclick="push({{ x + 1 }}, {{ y + 1}}, {{ areacost.cost.cost }}, {{ areacost.area.areaid }})" data-toggle="tooltip" title="Стоимость: {{ areacost.cost.cost }}">{{ y + 1}}</button>
+                                        {% endif %}
+                                    {% endfor %}
+                                </p>
+                            {% endfor %}
+                    {% endfor %}
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <form id="formticket" method="post" action="{{ url_for('ticket') }}">
+                        <div class="form-group">
+                            <label for="exampleFormControlInput1">Адресант билета</label>
+                            <input type="text" class="form-control" id="ticketname" name="name" placeholder="Фамилия Имя" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlInput1">Почта</label>
+                            <input type="email" class="form-control" id="ticketemail" name="email" placeholder="name@example.com">
+                        </div>
+                        <dic class="row">
+                            <div class="col-sm-2">
+                                <div class="form-group">
+                                    <label for="disabledTextInput">Ряд</label>
+                                    <input type="text" id="row" class="form-control" name="row" placeholder="Ряд" readonly required>
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="form-group">
+                                    <label for="disabledTextInput">Место</label>
+                                    <input type="text" id="place" class="form-control" name="place" placeholder="Место" readonly required>
+                                </div>
+                            </div>
+                        </dic>
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <div class="form-group">
+                                    <label for="disabledTextInput">Цена</label>
+                                    <input type="text" id="cost" class="form-control" name="cost" placeholder="Цена" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="showid" value="{{ show.showid }}" />
+                        <input type="hidden" id="areaid" name="areaid" />
+                        <div class="form-group">
+                            <button type="submit" name="action" value="Buy" class="btn btn-primary ">Купить билет</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            </div>
+        {% endif %}
+        {% if  not loop.first %}
+            <div class="tab-pane fade show" id="pills-{{show.showid}}" role="tabpanel" aria-labelledby="pills-{{ show.showid }}-tab">
+<div class="row">
+                <div class="col-sm-6 align-items-center">
+                    <div class="coteiner text-center">
+                    {% for areacost in showareacost[show.showid] %}
+                        <h6 class="text=center">{{ areacost.area.name }}</h6>
+                            {% for x in range(areacost.area.rows) %}
+                                <p> Ряд {{ x + 1}}
+                                    {% for y in range(areacost.area.seats) %}
+                                        {% if areacost.seats[x * areacost.area.seats + y] == True %}
+                                            <button type="button" class="btn btn-secondary" disabled>{{ y + 1 }}</button>
+                                        {% endif %}
+                                        {% if areacost.seats[x * areacost.area.seats + y] == False %}
+                                            <button type="button" class="btn btn-light" onclick="push({{ x + 1 }}, {{ y + 1}}, {{ areacost.cost.cost }}, {{ areacost.area.areaid }})" data-toggle="tooltip" title="Стоимость: {{ areacost.cost.cost }}">{{ y + 1}}</button>
+                                        {% endif %}
+                                    {% endfor %}
+                                </p>
+                            {% endfor %}
+                    {% endfor %}
+                    </div>
+                </div>
+                <div class="col-sm-6">
+                    <form id="formticket" method="post" action="{{ url_for('ticket') }}">
+                        <div class="form-group">
+                            <label for="exampleFormControlInput1">Адресант билета</label>
+                            <input type="text" class="form-control" id="ticketname" name="name" placeholder="Фамилия Имя" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="exampleFormControlInput1">Почта</label>
+                            <input type="email" class="form-control" id="ticketemail" name="email" placeholder="name@example.com">
+                        </div>
+                        <dic class="row">
+                            <div class="col-sm-2">
+                                <div class="form-group">
+                                    <label for="disabledTextInput">Ряд</label>
+                                    <input type="text" id="row" class="form-control" name="row" placeholder="Ряд" readonly required>
+                                </div>
+                            </div>
+                            <div class="col-sm-2">
+                                <div class="form-group">
+                                    <label for="disabledTextInput">Место</label>
+                                    <input type="text" id="place" class="form-control" name="place" placeholder="Место" readonly required>
+                                </div>
+                            </div>
+                        </dic>
+                        <div class="row">
+                            <div class="col-sm-2">
+                                <div class="form-group">
+                                    <label for="disabledTextInput">Цена</label>
+                                    <input type="text" id="cost" class="form-control" name="cost" placeholder="Цена" readonly>
+                                </div>
+                            </div>
+                        </div>
+                        <input type="hidden" name="showid" value="{{ show.showid }}" />
+                        <input type="hidden" id="areaid" name="areaid" />
+                        <div class="form-group">
+                            <button type="submit" name="action" value="Buy" class="btn btn-primary ">Купить билет</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            </div>
+        {% endif %}
+    {% endfor %}
+</div>
+
+</div>
+
+
+<div class="container border-0">
+{% for comment in comments %}
+<div class="media border p-3">
+    <!--<img src="img_avatar3.png" alt="John Doe" class="mr-3 mt-3 rounded-circle" style="width:60px;">-->
+    <div class="media-body">
+      <h4> {{ comment.name }} <small><i> от {{ comment.datetimecreated|datetime('full') }}</i></small></h4>
+      <p> {{ comment.text }}</p>
+    </div>
+  </div>
+{% endfor %}
+</div>
+
+
+  <div class="container">
+  <h4>Оставь свой отзыв! </h4>
+    <form method="post"  id="commetform" class="needs-validation" novalidate>
+    <div class="form-group">
+        <label for="title"> Ваше имя </label>
+        <input type="text" name="name"
+               placeholder="Имя" class="form-control"
+               value="{{ request.form['name'] }}" required>
+        <div class="invalid-feedback">
+          Требуется имя, хоть Пятачок
+        </div>
+        </input>
+    </div>
+
+    <div class="form-group">
+        <label for="content">Комментарий</label>
+        <textarea name="content" placeholder="Комментарий"
+                  class="form-control">{{ request.form['content'] }}</textarea>
+    </div>
+    <div class="form-group">
+        <button type="submit" class="btn btn-primary">Отправить</button>
+    </div>
+    </form>
+  </div>
+
+
+ <div class="container">
+<a href="/theatres/{{ perfomance.theatreid }}"><h2 class>Другие спектакли этого театра</h2></a>
+ <div class="card-deck mt-4 mr-4 ml-4">
+    {% for perfomance, closestshow in dict.values() %}
+        <div class="card">
+            {% if perfomance.img %}
+                <img class="card-img-top" src={{ url_for('static', filename= perfomance['img'])}}>
+            {% endif %}
+            <div class="card-body">
+                        <a href="{{ url_for('perfomance', perfomanceid=perfomance.perfomanceid) }}" class="stretched-link">
+                            <h4 class="card-title"> {{ perfomance['name'] }}</h4></a>
+                        {% if perfomance.synopsis %}
+                            <p class="card-text"> {{ perfomance['synopsis'] }}</p>
+                        {% endif %}
+
+                    <footer class="footer">
+                        <small class="text-muted">
+                            {% if not closestshow %} Событие прошло {% endif %} {% if closestshow %}{{ closestshow['datetime'] | datetime('short') }} {% endif %} &bull; {{ theatre['name'] }}
+                        </small>
+                    </footer>
+                    </div>
+        </div>
+    {% endfor %}
+</div>
+
+ </div>
+
+<script>
+function push(row, place, cost, areaid) {
+    var x = document.getElementById("row");   // Get the element with id="demo"
+    x.placeholder = row;
+    x.value = row;
+    var y = document.getElementById("place");   // Get the element with id="demo"
+    y.placeholder = place;
+    y.value = place;
+    var c = document.getElementById("cost");   // Get the element with id="demo"
+    c.placeholder = cost;
+    var area = document.getElementById("areaid");
+    area.value = areaid;
+}
+</script>
+
+
+<script>
+// Example starter JavaScript for disabling form submissions if there are invalid fields
+(function() {
+  'use strict';
+  window.addEventListener('load', function() {
+    // Fetch all the forms we want to apply custom Bootstrap validation styles to
+    var forms = document.getElementsByClassName('needs-validation');
+    // Loop over them and prevent submission
+    var validation = Array.prototype.filter.call(forms, function(form) {
+      form.addEventListener('submit', function(event) {
+        if (form.checkValidity() === false) {
+          event.preventDefault();
+          event.stopPropagation();
+        }
+        form.classList.add('was-validated');
+      }, false);
+    });
+  }, false);
+})();
+
+<script>
+$(document).ready(function () {
+    $("#formticket").on("click", function(e) {
+        $("#formticket").submit();
+    });
+
+    $("#commnentForm").on('click', function() {
+        $("#commentform").submit();
+    });
+});
+</script>
+
+
+{% endblock %}

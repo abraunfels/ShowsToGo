@@ -1,0 +1,157 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="jumbotron jumbotron-fluid">
+  <div class="container" style="height: 100%">
+      <div class="row" style="height: 100%">
+          <div class="col-sm-10">
+            <p class="text-secondary font-weight-bold"><small>Театр</small></p>
+            <h1>  {{ theatre['name'] }}</h1>
+            {% if theatre.description %} <p> {{ theatre['description'] }}</p> {% endif %}
+          </div>
+          <div class="col-sm-2">
+              {% if theatre.img %}
+              <img class="mx-auto d-block rounded-circle align-middle" width="100%" src={{ url_for('static', filename= theatre['img']) }} >
+              {% endif %}
+          </div>
+      </div>
+  </div>
+</div>
+
+<div class="container">
+<nav class="nav nav-tab">
+  <a class="nav-item nav-link active" href="#all">Репертуар</a>
+  <a class="nav-item nav-link" href="#affiche">Афиша</a>
+  <a class="nav-item nav-link" href="#maps">Адрес</a>
+</nav>
+
+<div id="all">
+<div class="container mt-4">
+    <h1 class="display-4"> Репертуар </h1>
+</div>
+
+<div class="card-columns mt-4 mr-4 ml-4">
+    {% if not dict.values() %} <p class="text-center"> Cобытий нет </p> {% endif %}
+    {%  if dict.values() %}
+    {% for perfomance, theatre, closestshow in dict.values() %}
+        <div class="card">
+            {% if perfomance.img %}
+                <img class="card-img-top" src={{ url_for('static', filename= perfomance['img'])}}>
+            {% endif %}
+            <div class="card-body">
+                        <a href="{{ url_for('perfomance', perfomanceid=perfomance.perfomanceid) }}" class="stretched-link">
+                            <h4 class="card-title"> {{ perfomance['name'] }}</h4></a>
+                        {% if perfomance.synopsis %}
+                            <p class="card-text"> {{ perfomance['synopsis'] }}</p>
+                        {% endif %}
+
+                    <footer class="footer">
+                        <small class="text-muted">
+                            {% if not closestshow %} Событие прошло {% endif %} {{ closestshow['datetime'] | datetime('short') }} &bull; {{ theatre['name'] }}
+                        </small>
+                    </footer>
+                    </div>
+        </div>
+    {% endfor %}
+    {%  endif %}
+</div>
+</div>
+
+<div id="affiche">
+{%  if dict.values() %}
+    <div class="container mt-4">
+        <h1 class="display-4"> Афиша </h1>
+    </div>
+      <ul class="nav nav-pills" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" data-toggle="pill" href="#home"> {{ date_list[0].month | month }}</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="pill" href="#menu1"> Всё доступное </a>
+    </li>
+  </ul>
+
+  <!-- Tab panes -->
+  <div class="tab-content">
+    <div id="home" class="container tab-pane active"><br>
+    {% for date in date_list %}
+                {% if dictshows[date.date()]|length %}
+                    <div class="container border-bottom mt-4">
+                        <div class="row">
+                            <div class="col-sm-4">
+                                <h3 class="font-weight-light"> {{ date | date('short')}} </h3>
+                            </div>
+                            <div class="col-sm-8">
+                                {% for el in dictshows[date.date()] %}
+                                    <div class="container">
+                                    <div class="row">
+                                        <div class="col-sm-2">
+                                            <h4 class="text-secondary font-weight-light">{{ el.show.datetime.time()|time}}</h4>
+                                        </div>
+                                        <div class="col-sm-8">
+                                            <p class="secondary"><small> {{ el.genre.name }}</small></p>
+                                            <h3>{{ el.perfomance.name }}</h3>
+                                            <h5><small class="text-secondary" >{{ el.hall.name }} </small></h5>
+                                        </div>
+                                        <div class="col-sm-2 align-middle">
+                                            <p class="text-right"><a class="btn btn-info" href="{{ url_for('perfomance', perfomanceid=el.perfomance.perfomanceid) }}#affishe" role="button">Билеты</a></p>
+                                        </div>
+                                    </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+    {% endfor %}
+    </div>
+    <div id="menu1" class="container tab-pane fade"><br>
+        {% for el in allshows %}
+                <div class="container border-bottom mt-4">
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <h3 class="font-weight-light"> {{ el.show.date | date('short')}} </h3>
+                        </div>
+                        <div class="col-sm-8">
+                            <div class="container">
+                                <div class="row">
+                                    <div class="col-sm-2">
+                                        <h4 class="text-secondary font-weight-light">{{ el.show.datetime.time()|time}}</h4>
+                                    </div>
+                                    <div class="col-sm-8">
+                                        <p class="secondary"><small> {{ el.genre.name }}</small></p>
+                                        <h3>{{ el.perfomance.name }}</h3>
+                                        <h5><small class="text-secondary" >{{ el.hall.name }} </small></h5>
+                                    </div>
+                                    <div class="col-sm-2 align-middle">
+                                        <p class="text-right"><a class="btn btn-info" href="{{ url_for('perfomance', perfomanceid=el.perfomance.perfomanceid) }}#affishe" role="button">Билеты</a></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        {% endfor %}
+    </div>
+  </div>
+{% endif %}
+</div>
+
+<div id="maps">
+    <h1 class="display-4">Адрес</h1>
+    <div id="googleMap" class="ml-4" style="width:100%;height:400px;"></div>
+</div>
+
+<script>
+function myMap() {
+var mapProp= {
+  center:new google.maps.LatLng(51.508742,-0.120850),
+  zoom:5,
+};
+var map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
+}
+</script>
+<script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY&callback=myMap"></script>
+
+{% endblock %}
+
